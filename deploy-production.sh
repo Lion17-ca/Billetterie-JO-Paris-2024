@@ -59,7 +59,12 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 
 # 7. Construire les images Docker
 echo -e "${GREEN}Construction des images Docker...${NC}"
-docker-compose -f docker-compose.prod.yml build
+# Build each service individually
+docker-compose -f docker-compose.prod.yml build frontend
+docker-compose -f docker-compose.prod.yml build auth
+docker-compose -f docker-compose.prod.yml build tickets
+docker-compose -f docker-compose.prod.yml build admin
+docker-compose -f docker-compose.prod.yml build validation
 
 # 8. Arrêter les conteneurs existants
 echo -e "${GREEN}Arrêt des conteneurs existants...${NC}"
