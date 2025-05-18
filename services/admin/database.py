@@ -12,7 +12,7 @@ load_dotenv()
 
 # Force l'utilisation de PostgreSQL pour Docker
 if os.getenv("DOCKER_ENV") == "true" or os.path.exists('/.dockerenv'):
-    DATABASE_URL = "postgresql://postgres:postgres@postgres-db:5432/admin_db"
+    DATABASE_URL = "postgresql://jo_app_user:replace_with_strong_password@postgres:5432/jo_production_db"
 else:
     DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./admin.db")
 
