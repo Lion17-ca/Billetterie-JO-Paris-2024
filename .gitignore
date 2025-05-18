@@ -67,3 +67,6 @@ yarn-error.log
 build/
 dist/
 .cache/
+
+# SSL certificates
+api-gateway/ssl/
