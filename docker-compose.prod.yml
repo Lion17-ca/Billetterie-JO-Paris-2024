@@ -8,8 +8,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    # Railway utilise ses propres volumes persistants
     networks:
       - backend-network
     healthcheck:
@@ -21,8 +20,7 @@ services:
   redis:
     image: redis:alpine
     restart: always
-    volumes:
-      - redis_data:/data
+    # Railway utilise ses propres volumes persistants
     networks:
       - backend-network
     healthcheck:
@@ -125,9 +123,9 @@ services:
     ports:
       - "443:443"
       - "80:80"
-    volumes:
-      - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./api-gateway/ssl:/etc/nginx/ssl:ro
+    # Copier les fichiers de configuration au lieu d'utiliser des volumes
+    # Railway ne supporte pas les volumes bind mount
+    # Ces fichiers doivent être inclus dans l'image Docker
     depends_on:
       - auth
       - tickets
@@ -163,6 +161,4 @@ networks:
   frontend-network:
     driver: bridge
 
-volumes:
-  postgres_data:
-  redis_data:
+# Les volumes sont gérés par Railway, pas besoin de les définir ici

@@ -2,6 +2,8 @@
 
 Ce document explique comment déployer l'application Billetterie JO Paris 2024 sur la plateforme Railway.
 
+> **Note importante** : Railway n'autorise pas l'utilisation de l'instruction `VOLUME` dans les Dockerfiles ni les volumes définis dans docker-compose. Les fichiers de configuration ont été adaptés en conséquence.
+
 ## Prérequis
 
 - Un compte [Railway](https://railway.app/)
@@ -12,9 +14,10 @@ Ce document explique comment déployer l'application Billetterie JO Paris 2024 s
 
 Le projet est déjà configuré pour un déploiement sur Railway avec les fichiers suivants :
 
-- `railway.json` : Configuration Railway
-- `docker-compose.prod.yml` : Configuration Docker pour la production
+- `railway.json` : Configuration Railway avec plugins PostgreSQL et Redis
+- `docker-compose.prod.yml` : Configuration Docker pour la production (sans volumes)
 - `.env.production` : Variables d'environnement pour la production
+- `api-gateway/Dockerfile` : Configuration Nginx avec fichiers inclus dans l'image
 
 ## Étapes de déploiement
 
