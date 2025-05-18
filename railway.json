@@ -1,20 +1,16 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "builder": "NIXPACKS"
+    "builder": "NIXPACKS",
+    "watchPatterns": [
+      "services/auth/**"
+    ]
   },
   "deploy": {
     "numReplicas": 1,
     "sleepApplication": false,
     "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
-  },
-  "plugins": {
-    "postgresql": {
-      "version": "14"
-    },
-    "redis": {
-      "version": "latest"
-    }
+    "restartPolicyMaxRetries": 10,
+    "startCommand": "cd services/auth && python -m uvicorn main:app --host 0.0.0.0 --port $PORT"
   }
 }
