@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "./docker-compose.prod.yml"
+  },
+  "deploy": {
+    "startCommand": "docker-compose -f docker-compose.prod.yml up -d",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 60,
+    "restartPolicyType": "ON_FAILURE"
+  }
+}

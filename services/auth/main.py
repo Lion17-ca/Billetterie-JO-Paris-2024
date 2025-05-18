@@ -128,6 +128,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: An
         raise credentials_exception
     return user
 
+# Health check pour Railway
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "service": "auth"}
+
 # Routes
 @app.post("/register", response_model=schemas.User)
 async def register_user(user: schemas.UserCreate, db: Annotated[Session, Depends(get_db)]):
