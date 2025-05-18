@@ -33,8 +33,6 @@ services:
 
   auth:
     image: ${DOCKERHUB_USERNAME}/jo-auth:latest
-    build:
-      context: ./services/auth
     restart: always
     depends_on:
       postgres:
@@ -58,8 +56,6 @@ services:
 
   tickets:
     image: ${DOCKERHUB_USERNAME}/jo-tickets:latest
-    build:
-      context: ./services/tickets
     restart: always
     depends_on:
       postgres:
@@ -83,8 +79,6 @@ services:
 
   admin:
     image: ${DOCKERHUB_USERNAME}/jo-admin:latest
-    build:
-      context: ./services/admin
     restart: always
     depends_on:
       postgres:
@@ -106,8 +100,6 @@ services:
 
   validation:
     image: ${DOCKERHUB_USERNAME}/jo-validation:latest
-    build:
-      context: ./services/validation
     restart: always
     depends_on:
       postgres:
@@ -157,7 +149,6 @@ services:
       - "3000:80"
     networks:
       - frontend-network
-      - backend-network
     depends_on:
       - api-gateway
     deploy:

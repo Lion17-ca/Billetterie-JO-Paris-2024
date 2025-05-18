@@ -1,6 +1,6 @@
 import { authApi, ticketApi, adminApi, validationApi } from './apiConfig';
 
-// Service d'authentification (port 8000)
+// Service d'authentification (port 8003)
 export const authService = {
   register: (userData) => authApi.post('/register', userData),
   login: (credentials) => {
@@ -18,7 +18,7 @@ export const authService = {
   changePassword: (passwordData) => authApi.post('/users/me/change-password', passwordData),
 };
 
-// Service de billetterie (port 8001)
+// Service de billetterie (port 8005)
 export const ticketService = {
   getOffers: () => ticketApi.get('/offers'),
   getOffer: (offerId) => ticketApi.get(`/offers/${offerId}`),
@@ -28,7 +28,7 @@ export const ticketService = {
   getTicketQRCode: (ticketId) => ticketApi.get(`/tickets/${ticketId}/qrcode`),
 };
 
-// Service d'administration (port 8003)
+// Service d'administration (port 8007)
 export const adminService = {
   getOffers: () => adminApi.get('/offers/'),
   createOffer: (offerData) => adminApi.post('/offers/', offerData),
@@ -38,7 +38,7 @@ export const adminService = {
   getOfferSales: (offerId) => adminApi.get(`/sales/${offerId}`),
 };
 
-// Service de validation (port 8002)
+// Service de validation (port 8008)
 export const validationService = {
   validateTicket: (validationData) => validationApi.post('/validate', validationData),
   getValidations: () => validationApi.get('/validations/'),

@@ -345,12 +345,6 @@ async def verify_mfa(request: Request, token_data: schemas.MFAToken, current_use
     
     return {"status": "success"}
 
-# Initialize admin and employee accounts when the service starts
-@app.on_event("startup")
-async def startup_event():
-    from init_accounts import init_admin_and_employee_accounts
-    init_admin_and_employee_accounts()
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -190,20 +190,6 @@ jobs:
         context: ./services/admin
         push: true
         tags: ${{ env.DOCKERHUB_USERNAME }}/jo-admin:latest
-        
-    - name: Build and push Frontend service
-      uses: docker/build-push-action@v4
-      with:
-        context: ./frontend
-        push: true
-        tags: ${{ env.DOCKERHUB_USERNAME }}/jo-frontend:latest
-        
-    - name: Build and push API Gateway
-      uses: docker/build-push-action@v4
-      with:
-        context: ./api-gateway
-        push: true
-        tags: ${{ env.DOCKERHUB_USERNAME }}/jo-api-gateway:latest
 
   deploy:
     needs: [build, load-test]
@@ -228,30 +214,7 @@ jobs:
         scp docker-compose.prod.yml ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:~/billetterie-jo/
         scp .env.production ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:~/billetterie-jo/.env
         scp deploy-production.sh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:~/billetterie-jo/
-        scp -r docs/ ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:~/billetterie-jo/
     
     - name: Deploy to production
       run: |
         ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} 'cd ~/billetterie-jo && chmod +x deploy-production.sh && ./deploy-production.sh'
-        
-    - name: Verify deployment
-      run: |
-        echo "Vérification du déploiement..."
-        # Attendre que les services soient prêts
-        sleep 30
-        # Vérifier que les services sont en cours d'exécution
-        ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} 'cd ~/billetterie-jo && docker-compose -f docker-compose.prod.yml ps'
-        # Vérifier que l'API est accessible
-        curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.PRODUCTION_HOST }}/api/tickets/offers/ | grep 200 || echo "L'API n'est pas accessible"
-        
-    - name: Send deployment notification
-      if: always()
-      run: |
-        if [ ${{ job.status }} == "success" ]; then
-          echo "Déploiement réussi! L'application est accessible à l'adresse http://${{ secrets.PRODUCTION_HOST }}"
-          echo "Comptes pré-configurés disponibles:"
-          echo "- Admin: admin@example.com / Admin123!"
-          echo "- Employé: employee@example.com / Employee123!"
-        else
-          echo "Échec du déploiement. Veuillez consulter les logs pour plus d'informations."
-        fi
