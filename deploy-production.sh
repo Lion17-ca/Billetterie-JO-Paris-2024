@@ -112,6 +112,16 @@ echo -e "${YELLOW}Service de billetterie: https://localhost/api/tickets/docs${NC
 echo -e "${YELLOW}Service d'administration: https://localhost/api/admin/docs${NC}"
 echo -e "${YELLOW}Service de validation: https://localhost/api/validation/docs${NC}"
 
+# Afficher les informations sur les comptes pré-configurés
+echo -e "${GREEN}Comptes pré-configurés disponibles:${NC}"
+echo -e "${YELLOW}Compte administrateur:${NC}"
+echo -e "  ${YELLOW}Email: admin@example.com${NC}"
+echo -e "  ${YELLOW}Mot de passe: Admin123!${NC}"
+echo -e "${YELLOW}Compte employé:${NC}"
+echo -e "  ${YELLOW}Email: employee@example.com${NC}"
+echo -e "  ${YELLOW}Mot de passe: Employee123!${NC}"
+echo -e "${GREEN}Pour plus d'informations, consultez le fichier docs/COMPTES_PRECONFIGURES.md${NC}"
+
 echo -e "${GREEN}Pour arrêter l'application:${NC}"
 echo -e "${YELLOW}docker-compose -f docker-compose.prod.yml down${NC}"
 
