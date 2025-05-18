@@ -157,6 +157,7 @@ services:
       - "3000:80"
     networks:
       - frontend-network
+      - backend-network
     depends_on:
       - api-gateway
     deploy:

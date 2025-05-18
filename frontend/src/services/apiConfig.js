@@ -49,15 +49,15 @@ const createApiInstance = (baseURL) => {
 // Déterminer l'hôte actuel (utiliser le hostname actuel au lieu de localhost codé en dur)
 const currentHost = window.location.hostname;
 
-// Utiliser l'API Gateway comme point d'entrée principal (port 8080)
+// Utiliser l'API Gateway comme point d'entrée principal (port 80)
 // C'est la meilleure pratique pour une architecture microservices
-const apiGatewayUrl = `http://${currentHost}:8080`;
+const apiGatewayUrl = `http://${currentHost}:80`;
 
 // Création des instances pour chaque service via l'API Gateway
-export const authApi = createApiInstance(`${apiGatewayUrl}/auth`);
-export const ticketApi = createApiInstance(`${apiGatewayUrl}/tickets`);
-export const adminApi = createApiInstance(`${apiGatewayUrl}/admin`);
-export const validationApi = createApiInstance(`${apiGatewayUrl}/validation`);
+export const authApi = createApiInstance(`${apiGatewayUrl}/api/auth`);
+export const ticketApi = createApiInstance(`${apiGatewayUrl}/api/tickets`);
+export const adminApi = createApiInstance(`${apiGatewayUrl}/api/admin`);
+export const validationApi = createApiInstance(`${apiGatewayUrl}/api/validation`);
 
 export default {
   authApi,

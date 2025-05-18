@@ -236,6 +236,22 @@ Les tests de charge simulent différents types d'utilisateurs :
    docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
    ```
 
+### Comptes pré-configurés
+
+L'application est livrée avec deux comptes pré-configurés pour faciliter les tests :
+
+#### Compte Administrateur
+- **Email**: admin@example.com
+- **Mot de passe**: Admin123!
+- **Droits**: Accès complet au tableau de bord d'administration, gestion des offres, visualisation des ventes
+
+#### Compte Employé
+- **Email**: employee@example.com
+- **Mot de passe**: Employee123!
+- **Droits**: Accès à l'interface de validation des billets
+
+> **Note de sécurité**: Ces comptes sont destinés uniquement aux tests. Pour un environnement de production réel, il est fortement recommandé de supprimer ou de modifier les mots de passe de ces comptes après le déploiement initial.
+
 ## Documentation
 
 Le projet dispose de plusieurs types de documentation :
