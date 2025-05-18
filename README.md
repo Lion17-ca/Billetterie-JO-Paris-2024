@@ -51,7 +51,7 @@ Le système implémente plusieurs couches de sécurité :
 - **QR Codes** : qrcode, Pillow
 - **Frontend** : React, Bootstrap, React Router
 - **Conteneurisation** : Docker, Docker Compose
-- **Tests** : pytest, pytest-cov
+- **Tests** : pytest, pytest-cov, Locust (tests de charge)
 
 ## Prérequis
 
@@ -148,6 +148,8 @@ Le système implémente plusieurs couches de sécurité :
 
 ## Tests
 
+### Tests Unitaires et d'API
+
 1. Exécuter les tests unitaires :
    ```bash
    # Activer l'environnement virtuel si ce n'est pas déjà fait
@@ -161,6 +163,46 @@ Le système implémente plusieurs couches de sécurité :
    ```bash
    pytest --cov=services --cov-report=html
    ```
+
+### Tests d'Intégration
+
+```bash
+# Exécuter les tests d'intégration
+./run_integration_tests.sh
+```
+
+### Tests de Charge
+
+Le projet inclut des tests de charge pour vérifier la capacité du système à gérer des millions d'utilisateurs simultanés, ce qui est crucial pour un système de billetterie des Jeux Olympiques.
+
+1. Installer Locust :
+   ```bash
+   pip install locust
+   ```
+
+2. Exécuter les tests de charge avec l'interface web :
+   ```bash
+   cd load_tests
+   locust -f locustfile.py
+   ```
+   Puis accéder à http://localhost:8089 dans votre navigateur.
+
+3. Ou exécuter les tests de charge en ligne de commande :
+   ```bash
+   cd load_tests
+   ./run_load_tests.sh
+   ```
+   
+   Options personnalisées :
+   ```bash
+   # ./run_load_tests.sh [HOST] [USERS] [SPAWN_RATE] [RUNTIME]
+   ./run_load_tests.sh http://localhost:8000 1000 50 300
+   ```
+
+Les tests de charge simulent différents types d'utilisateurs :
+- Utilisateurs standard (inscription, navigation, achat de billets)
+- Employés de validation (validation des billets sur site)
+- Administrateurs (consultation des statistiques)
 
 ## Déploiement en production
 
@@ -181,10 +223,14 @@ Le système implémente plusieurs couches de sécurité :
 │   ├── tickets/            # Service de billetterie
 │   ├── admin/              # Service d'administration
 │   └── validation/         # Service de validation
+├── load_tests/             # Tests de charge avec Locust
+├── integration_tests/      # Tests d'intégration
+├── .github/workflows/     # Workflows CI/CD
 ├── docker-compose.yml      # Configuration Docker Compose
 ├── .env                    # Variables d'environnement
 ├── init-db.sh              # Script d'initialisation de la base de données
 ├── start-dev.sh            # Script de démarrage en mode développement
+├── TESTING.md              # Documentation des tests
 └── README.md               # Documentation du projet
 ```
 

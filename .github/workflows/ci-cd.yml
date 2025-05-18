@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+env:
+  DOCKERHUB_USERNAME: billetterie-jo
+  DOCKERHUB_TOKEN: ${{ github.token }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -61,6 +65,89 @@ jobs:
         file: ./coverage.xml
         fail_ci_if_error: true
 
+  load-test:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main')
+    
+    services:
+      # Services pour les tests de charge
+      auth:
+        image: jo-auth:latest
+        ports:
+          - 8000:8000
+      tickets:
+        image: jo-tickets:latest
+        ports:
+          - 8001:8000
+      validation:
+        image: jo-validation:latest
+        ports:
+          - 8002:8000
+      admin:
+        image: jo-admin:latest
+        ports:
+          - 8003:8000
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install locust
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    - name: Run load tests
+      run: |
+        cd load_tests
+        locust -f locustfile.py --host=http://localhost:8000 --users=100 --spawn-rate=10 --run-time=60s --headless --csv=load_test_results
+    
+    - name: Upload load test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: load-test-results
+        path: load_tests/load_test_results*.csv
+    
+    - name: Analyze load test results
+      run: |
+        echo "Analyzing load test results..."
+        # Vérifier si le taux d'erreur est acceptable (moins de 5%)
+        ERROR_RATE=$(grep -v "Name" load_tests/load_test_results_stats.csv | awk -F, '{print $8}')
+        if (( $(echo "$ERROR_RATE > 5.0" | bc -l) )); then
+          echo "Le taux d'erreur est trop élevé: $ERROR_RATE%"
+          exit 1
+        else
+          echo "Taux d'erreur acceptable: $ERROR_RATE%"
+        fi
+        
+        # Vérifier si le temps de réponse moyen est acceptable (moins de 2000ms)
+        AVG_RESPONSE=$(grep -v "Name" load_tests/load_test_results_stats.csv | awk -F, '{print $5}')
+        if (( $(echo "$AVG_RESPONSE > 2000" | bc -l) )); then
+          echo "Le temps de réponse moyen est trop élevé: $AVG_RESPONSE ms"
+          exit 1
+        else
+          echo "Temps de réponse moyen acceptable: $AVG_RESPONSE ms"
+        fi
+
   build:
     needs: test
     runs-on: ubuntu-latest
@@ -75,36 +162,36 @@ jobs:
     - name: Login to DockerHub
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        username: ${{ env.DOCKERHUB_USERNAME }}
+        password: ${{ env.DOCKERHUB_TOKEN }}
     
     - name: Build and push Auth service
       uses: docker/build-push-action@v4
       with:
         context: ./services/auth
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jo-auth:latest
+        tags: ${{ env.DOCKERHUB_USERNAME }}/jo-auth:latest
     
     - name: Build and push Tickets service
       uses: docker/build-push-action@v4
       with:
         context: ./services/tickets
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jo-tickets:latest
+        tags: ${{ env.DOCKERHUB_USERNAME }}/jo-tickets:latest
     
     - name: Build and push Validation service
       uses: docker/build-push-action@v4
       with:
         context: ./services/validation
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jo-validation:latest
+        tags: ${{ env.DOCKERHUB_USERNAME }}/jo-validation:latest
     
     - name: Build and push Admin service
       uses: docker/build-push-action@v4
       with:
         context: ./services/admin
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jo-admin:latest
+        tags: ${{ env.DOCKERHUB_USERNAME }}/jo-admin:latest
 
   deploy:
     needs: build

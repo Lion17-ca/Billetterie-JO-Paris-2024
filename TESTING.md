@@ -140,3 +140,69 @@ Si vous rencontrez des problèmes lors de l'exécution des tests :
 - **Tests Unitaires** : Objectif de 80% minimum de couverture de code
 - **Tests d'Intégration** : Couvrir toutes les interactions entre services
 - **Tests End-to-End** : Couvrir tous les scénarios utilisateur critiques
+- **Tests de Charge** : Vérifier la capacité à gérer des millions d'utilisateurs simultanés
+
+## Tests de Charge
+
+Les tests de charge permettent de vérifier la capacité du système à gérer un grand nombre d'utilisateurs simultanés, ce qui est crucial pour un système de billetterie des Jeux Olympiques.
+
+### Prérequis
+
+- Python 3.13+
+- Locust installé : `pip install locust`
+- Tous les services en cours d'exécution
+
+### Exécution des Tests de Charge
+
+```bash
+# Rendre le script exécutable (si ce n'est pas déjà fait)
+chmod +x load_tests/run_load_tests.sh
+
+# Exécuter les tests de charge avec les paramètres par défaut
+cd load_tests
+./run_load_tests.sh
+
+# Ou spécifier des paramètres personnalisés
+# ./run_load_tests.sh [HOST] [USERS] [SPAWN_RATE] [RUNTIME]
+# Exemple : ./run_load_tests.sh http://localhost:8000 1000 50 300
+```
+
+### Interface Web Locust
+
+Pour exécuter les tests avec l'interface web de Locust :
+
+```bash
+cd load_tests
+locust -f locustfile.py
+```
+
+Puis accédez à `http://localhost:8089` dans votre navigateur.
+
+### Scénarios de Test de Charge
+
+Les tests de charge simulent les comportements utilisateur suivants :
+
+1. **Utilisateurs standard** :
+   - Inscription et connexion
+   - Navigation dans les offres disponibles
+   - Achat de billets
+   - Consultation des billets achetés
+
+2. **Employés de validation** :
+   - Validation des billets sur site
+
+3. **Administrateurs** :
+   - Consultation des statistiques de vente
+
+### Analyse des Résultats
+
+Après l'exécution des tests, Locust génère des fichiers CSV contenant les résultats :
+- `results_stats.csv` : Statistiques globales
+- `results_stats_history.csv` : Évolution des statistiques dans le temps
+- `results_failures.csv` : Détails des échecs
+
+Métriques clés à surveiller :
+- **Temps de réponse moyen** : Idéalement < 1 seconde
+- **Percentile 95** : Temps de réponse pour 95% des requêtes
+- **Taux d'erreur** : Idéalement < 1%
+- **Requêtes par seconde** : Capacité maximale du système
