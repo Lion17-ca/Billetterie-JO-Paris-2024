@@ -31,6 +31,29 @@ Le projet est structuré en microservices :
 - Gestion des offres de tickets
 - Visualisation des ventes et statistiques
 
+## Captures d'écran
+
+### Interface utilisateur
+
+![Page d'accueil](assets/images/home_screen.png)
+*Page d'accueil présentant les offres de billets disponibles*
+
+![Authentification MFA](assets/images/mfa_screen.png)
+*Configuration de l'authentification multi-facteurs*
+
+### Billets et QR Codes
+
+![Exemple de billet](assets/images/ticket_example.png)
+*Exemple de billet électronique avec QR code*
+
+### Interface d'administration
+
+![Tableau de bord administrateur](assets/images/admin_dashboard.png)
+*Tableau de bord d'administration avec statistiques de vente*
+
+![Validation de billets](assets/images/ticket_validation.png)
+*Interface de validation des billets pour les employés*
+
 ## Sécurité
 
 Le système implémente plusieurs couches de sécurité :
@@ -213,6 +236,47 @@ Les tests de charge simulent différents types d'utilisateurs :
    docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
    ```
 
+## Documentation
+
+Le projet dispose de plusieurs types de documentation :
+
+### Documentation API (Swagger/OpenAPI)
+
+Chaque service expose sa documentation API via Swagger UI, accessible aux endpoints `/docs` :
+- Service d'authentification : http://localhost:8000/docs
+- Service de billetterie : http://localhost:8001/docs
+- Service de validation : http://localhost:8002/docs
+- Service d'administration : http://localhost:8003/docs
+
+### Documentation du Code (Sphinx)
+
+Le projet utilise Sphinx pour générer une documentation HTML à partir des docstrings du code Python :
+
+1. Générer la documentation :
+   ```bash
+   ./generate_docs.sh
+   ```
+
+2. Consulter la documentation :
+   Ouvrez le fichier `docs/build/html/index.html` dans votre navigateur.
+
+### Wiki GitHub
+
+Un wiki GitHub est disponible pour la documentation détaillée et évolutive du projet. Il contient :
+- Guide de démarrage rapide
+- Architecture du système
+- Documentation des services
+- Guide de sécurité
+- FAQ
+
+Accédez au wiki via l'onglet "Wiki" du dépôt GitHub.
+
+### Fichiers de Documentation
+
+- `API.md` : Documentation détaillée des API REST
+- `TESTING.md` : Documentation des tests
+- `docs/README.md` : Guide pour la documentation Sphinx
+
 ## Structure du projet
 
 ```
@@ -223,13 +287,18 @@ Les tests de charge simulent différents types d'utilisateurs :
 │   ├── tickets/            # Service de billetterie
 │   ├── admin/              # Service d'administration
 │   └── validation/         # Service de validation
+├── docs/                   # Documentation Sphinx
+│   ├── source/             # Fichiers source de la documentation
+│   └── build/html/         # Documentation HTML générée
 ├── load_tests/             # Tests de charge avec Locust
 ├── integration_tests/      # Tests d'intégration
-├── .github/workflows/     # Workflows CI/CD
+├── .github/workflows/      # Workflows CI/CD
 ├── docker-compose.yml      # Configuration Docker Compose
 ├── .env                    # Variables d'environnement
 ├── init-db.sh              # Script d'initialisation de la base de données
 ├── start-dev.sh            # Script de démarrage en mode développement
+├── generate_docs.sh        # Script de génération de la documentation
+├── API.md                  # Documentation détaillée des API
 ├── TESTING.md              # Documentation des tests
 └── README.md               # Documentation du projet
 ```
@@ -245,6 +314,24 @@ Les tests de charge simulent différents types d'utilisateurs :
 ## Licence
 
 Ce projet est sous licence [MIT](LICENSE).
+
+## Comment ajouter vos propres captures d'écran
+
+Pour ajouter vos propres captures d'écran au README :
+
+1. Placez vos images dans le répertoire `assets/images/`
+2. Référencez-les dans le README.md en utilisant la syntaxe Markdown :
+
+```markdown
+![Texte alternatif](assets/images/nom_de_votre_image.png)
+*Légende de l'image*
+```
+
+3. Pour les images plus grandes, vous pouvez contrôler la taille avec HTML :
+
+```markdown
+<img src="assets/images/grande_image.png" alt="Description" width="600" />
+```
 
 ## Contact
 

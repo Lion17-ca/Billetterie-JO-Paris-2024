@@ -7,8 +7,8 @@ on:
     branches: [ main, develop ]
 
 env:
-  DOCKERHUB_USERNAME: billetterie-jo
-  DOCKERHUB_TOKEN: ${{ github.token }}
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
 jobs:
   test:
@@ -71,23 +71,7 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main')
     
     services:
-      # Services pour les tests de charge
-      auth:
-        image: jo-auth:latest
-        ports:
-          - 8000:8000
-      tickets:
-        image: jo-tickets:latest
-        ports:
-          - 8001:8000
-      validation:
-        image: jo-validation:latest
-        ports:
-          - 8002:8000
-      admin:
-        image: jo-admin:latest
-        ports:
-          - 8003:8000
+      # Service PostgreSQL pour les tests de charge
       postgres:
         image: postgres:14
         env:
@@ -96,7 +80,7 @@ jobs:
           POSTGRES_DB: test_db
         ports:
           - 5432:5432
-        options: >-
+        options: >
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
@@ -116,6 +100,20 @@ jobs:
         pip install locust
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     
+    - name: Start services for load testing
+      run: |
+        # Démarrer les services en arrière-plan
+        cd services/auth
+        python main.py &
+        cd ../tickets
+        python main.py &
+        cd ../validation
+        python main.py &
+        cd ../admin
+        python main.py &
+        # Attendre que les services soient prêts
+        sleep 10
+        
     - name: Run load tests
       run: |
         cd load_tests
@@ -194,16 +192,29 @@ jobs:
         tags: ${{ env.DOCKERHUB_USERNAME }}/jo-admin:latest
 
   deploy:
-    needs: build
+    needs: [build, load-test]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
     steps:
     - uses: actions/checkout@v3
     
+    - name: Set up SSH key
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    
+    - name: Add host to known_hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+    
+    - name: Copy deployment files
+      run: |
+        scp docker-compose.prod.yml ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:~/billetterie-jo/
+        scp .env.production ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:~/billetterie-jo/.env
+        scp deploy-production.sh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:~/billetterie-jo/
+    
     - name: Deploy to production
       run: |
-        echo "Déploiement en production..."
-        # Ici, vous ajouteriez les commandes pour déployer votre application
-        # Par exemple, en utilisant SSH pour se connecter à votre serveur et exécuter docker-compose
-        # ou en utilisant un service comme AWS ECS, Google Cloud Run, etc.
+        ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} 'cd ~/billetterie-jo && chmod +x deploy-production.sh && ./deploy-production.sh'
