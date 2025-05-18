@@ -3,11 +3,7 @@ services:
   - type: pserv
     name: billetterie-postgres
     env: docker
-    plan: free
-    disk:
-      name: postgres-data
-      mountPath: /var/lib/postgresql/data
-      sizeGB: 1
+    plan: starter
     envVars:
       - key: POSTGRES_USER
         value: postgres
@@ -39,15 +35,9 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: REDIS_HOST
-        fromService:
-          type: redis
-          name: billetterie-redis
-          envVarKey: REDIS_HOST
+        value: billetterie-redis
       - key: REDIS_PORT
-        fromService:
-          type: redis
-          name: billetterie-redis
-          envVarKey: REDIS_PORT
+        value: 6379
 
   # Service de billetterie
   - type: web
@@ -64,15 +54,9 @@ services:
           name: billetterie-postgres
           envVarKey: DATABASE_URL
       - key: REDIS_HOST
-        fromService:
-          type: redis
-          name: billetterie-redis
-          envVarKey: REDIS_HOST
+        value: billetterie-redis
       - key: REDIS_PORT
-        fromService:
-          type: redis
-          name: billetterie-redis
-          envVarKey: REDIS_PORT
+        value: 6379
 
   # Service d'administration
   - type: web
@@ -89,15 +73,9 @@ services:
           name: billetterie-postgres
           envVarKey: DATABASE_URL
       - key: REDIS_HOST
-        fromService:
-          type: redis
-          name: billetterie-redis
-          envVarKey: REDIS_HOST
+        value: billetterie-redis
       - key: REDIS_PORT
-        fromService:
-          type: redis
-          name: billetterie-redis
-          envVarKey: REDIS_PORT
+        value: 6379
 
   # Service de validation
   - type: web
@@ -114,15 +92,9 @@ services:
           name: billetterie-postgres
           envVarKey: DATABASE_URL
       - key: REDIS_HOST
-        fromService:
-          type: redis
-          name: billetterie-redis
-          envVarKey: REDIS_HOST
+        value: billetterie-redis
       - key: REDIS_PORT
-        fromService:
-          type: redis
-          name: billetterie-redis
-          envVarKey: REDIS_PORT
+        value: 6379
 
   # API Gateway
   - type: web
@@ -132,10 +104,6 @@ services:
     dockerContext: ./api-gateway
     plan: free
     healthCheckPath: /api/tickets/offers/
-    routes:
-      - type: rewrite
-        source: /api/*
-        destination: /api/$1
 
   # Frontend
   - type: web
@@ -145,10 +113,6 @@ services:
     dockerContext: ./frontend
     plan: free
     healthCheckPath: /
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
     envVars:
       - key: REACT_APP_API_URL
         value: https://billetterie-api-gateway.onrender.com
