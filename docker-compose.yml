@@ -1,0 +1,140 @@
+version: '3.8'
+
+services:
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:8000
+      - TICKETS_SERVICE_URL=http://tickets-service:8001
+      - ADMIN_SERVICE_URL=http://admin-service:8003
+      - VALIDATION_SERVICE_URL=http://validation-service:8002
+    volumes:
+      - ./api-gateway:/app
+      - ./logs:/logs
+    depends_on:
+      - auth-service
+      - tickets-service
+      - admin-service
+      - validation-service
+    networks:
+      - jo-network
+
+  # Service d'Authentification
+  auth-service:
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-db:5432/auth_db
+      - SECRET_KEY=${SECRET_KEY}
+    volumes:
+      - ./services/auth:/app
+      - ./logs:/logs
+    depends_on:
+      - postgres-db
+    networks:
+      - jo-network
+
+  # Service de Billetterie
+  tickets-service:
+    build:
+      context: ./services/tickets
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-db:5432/tickets_db
+    depends_on:
+      - postgres-db
+    networks:
+      - jo-network
+
+  # Service d'Administration
+  admin-service:
+    build:
+      context: ./services/admin
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-db:5432/admin_db
+    depends_on:
+      - postgres-db
+    networks:
+      - jo-network
+
+  # Service de Validation
+  validation-service:
+    build:
+      context: ./services/validation
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-db:5432/validation_db
+    depends_on:
+      - postgres-db
+    networks:
+      - jo-network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080
+      - CHOKIDAR_USEPOLLING=true
+      - WDS_SOCKET_PORT=3000
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/package-lock.json:/app/package-lock.json
+      - /app/node_modules
+    depends_on:
+      - api-gateway
+    networks:
+      - jo-network
+
+  # Base de données PostgreSQL
+  postgres-db:
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_MULTIPLE_DATABASES=auth_db,tickets_db,admin_db,validation_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    networks:
+      - jo-network
+
+  # Redis pour le cache et les sessions
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - jo-network
+
+networks:
+  jo-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

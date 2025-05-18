@@ -1,0 +1,122 @@
+name: CI/CD Pipeline - Billetterie JO
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      # Service PostgreSQL pour les tests d'intégration
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install pytest pytest-cov
+    
+    - name: Run unit tests
+      run: |
+        python -m pytest services/*/tests/test_*_unit.py --cov=services
+    
+    - name: Run API tests
+      run: |
+        cd services/auth && python -m pytest tests/test_auth_api.py -v --cov=.
+        cd ../tickets && python -m pytest tests/test_tickets_api_routes.py -v --cov=.
+        cd ../validation && python -m pytest tests/test_validation_api_routes.py -v --cov=.
+        cd ../admin && python -m pytest tests/test_admin_api_routes.py -v --cov=.
+    
+    - name: Generate coverage report
+      run: |
+        python -m pytest services/*/tests/test_*.py --cov=services --cov-report=xml
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: true
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Build and push Auth service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./services/auth
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jo-auth:latest
+    
+    - name: Build and push Tickets service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./services/tickets
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jo-tickets:latest
+    
+    - name: Build and push Validation service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./services/validation
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jo-validation:latest
+    
+    - name: Build and push Admin service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./services/admin
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jo-admin:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to production
+      run: |
+        echo "Déploiement en production..."
+        # Ici, vous ajouteriez les commandes pour déployer votre application
+        # Par exemple, en utilisant SSH pour se connecter à votre serveur et exécuter docker-compose
+        # ou en utilisant un service comme AWS ECS, Google Cloud Run, etc.

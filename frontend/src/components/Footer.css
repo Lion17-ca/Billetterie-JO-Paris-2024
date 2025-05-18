@@ -1,0 +1,124 @@
+/* Styles pour le footer */
+.olympic-footer {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%);
+  color: #f8f9fa;
+  padding: 3rem 0 1.5rem;
+  margin-top: 4rem;
+  border-top: 4px solid #0078D7;
+}
+
+.olympic-footer h5 {
+  color: #ffffff;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-bottom: 0.8rem;
+}
+
+.olympic-footer h5::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, #0078D7, #00B2A9);
+  border-radius: 3px;
+}
+
+.olympic-footer p {
+  color: #adb5bd;
+  line-height: 1.6;
+}
+
+.olympic-footer ul li {
+  margin-bottom: 0.8rem;
+}
+
+.olympic-footer a {
+  color: #adb5bd;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  display: inline-block;
+  position: relative;
+}
+
+.olympic-footer a:hover {
+  color: #ffffff;
+}
+
+.olympic-footer a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -3px;
+  left: 0;
+  background: linear-gradient(90deg, #0078D7, #00B2A9);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.olympic-footer a:hover::after {
+  width: 100%;
+}
+
+.footer-social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  margin-right: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.footer-social-icon:hover {
+  background-color: #0078D7;
+  transform: translateY(-3px);
+}
+
+.footer-logo {
+  width: 80px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.footer-copyright {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.footer-contact-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.footer-contact-icon {
+  margin-right: 0.8rem;
+  color: #0078D7;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .olympic-footer {
+    padding: 2rem 0 1rem;
+    text-align: center;
+  }
+  
+  .olympic-footer h5::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .footer-social-icons {
+    margin-bottom: 1.5rem;
+  }
+}

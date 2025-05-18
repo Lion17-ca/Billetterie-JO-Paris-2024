@@ -1,0 +1,64 @@
+.card {
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border-radius: 15px;
+}
+
+h1 {
+  color: #0078D7;
+  font-weight: 700;
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-control {
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #dee2e6;
+}
+
+.form-control:focus {
+  border-color: #0078D7;
+  box-shadow: 0 0 0 0.25rem rgba(0, 120, 215, 0.25);
+}
+
+.form-check-input:checked {
+  background-color: #0078D7;
+  border-color: #0078D7;
+}
+
+.form-check-label {
+  font-size: 0.9rem;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-danger:hover {
+  background-color: #bb2d3b;
+  border-color: #b02a37;
+}
+
+.btn-outline-primary {
+  color: #0078D7;
+  border-color: #0078D7;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0078D7;
+  color: white;
+}
+
+a {
+  color: #0078D7;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

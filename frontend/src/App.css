@@ -1,0 +1,118 @@
+/* Styles généraux pour l'application */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Styles pour les titres */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+}
+
+/* Styles pour les cartes */
+.card {
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour les boutons */
+.btn {
+  border-radius: 5px;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.btn-primary:hover {
+  background-color: #004494;
+  border-color: #004494;
+}
+
+/* Styles pour les QR codes */
+.qr-code-container {
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+/* Styles pour les formulaires */
+.form-control:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.25);
+}
+
+/* Styles pour la page d'accueil */
+.hero-section {
+  padding: 60px 0;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+/* Styles pour le footer */
+footer {
+  margin-top: auto;
+  padding: 20px 0;
+}
+
+/* Styles pour les alertes */
+.alert {
+  border-radius: 8px;
+}
+
+/* Styles pour les badges */
+.badge {
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+/* Styles pour les onglets */
+.nav-tabs .nav-link {
+  font-weight: 500;
+  color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+  color: #0056b3;
+  border-color: #dee2e6 #dee2e6 #fff;
+}
+
+/* Styles pour les listes */
+.list-group-item {
+  border-left: none;
+  border-right: none;
+}
+
+/* Styles pour les spinners */
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* Media queries pour la responsivité */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 15px;
+  }
+  
+  h1 {
+    font-size: 1.8rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+}

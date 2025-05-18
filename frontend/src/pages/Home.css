@@ -1,0 +1,97 @@
+/* Styles pour la page d'accueil */
+
+/* Styles généraux */
+.olympic-card {
+  border-radius: 15px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.olympic-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.olympic-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+.olympic-card .card-body {
+  padding: 1.5rem;
+}
+
+/* Styles pour le carrousel */
+.carousel-caption {
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 15px;
+  padding: 20px;
+  max-width: 80%;
+  margin: 0 auto;
+  bottom: 40px;
+}
+
+.carousel-item {
+  height: 500px;
+}
+
+.carousel-item img {
+  object-fit: cover;
+  height: 100%;
+}
+
+/* Section des caractéristiques */
+.feature-icon {
+  background: linear-gradient(135deg, #0078D7 0%, #00B2A9 100%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  color: white;
+}
+
+.feature-card {
+  border-radius: 15px;
+  padding: 2rem;
+  height: 100%;
+  transition: transform 0.3s ease;
+  background-color: white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+}
+
+/* Call to action section */
+.cta-section {
+  background: linear-gradient(135deg, #0078D7 0%, #00B2A9 100%);
+  border-radius: 20px;
+  padding: 3rem;
+  color: white;
+}
+
+.cta-section .btn {
+  border-radius: 30px;
+  padding: 0.75rem 2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .carousel-item {
+    height: 300px;
+  }
+  
+  .carousel-caption {
+    bottom: 20px;
+    padding: 10px;
+  }
+}

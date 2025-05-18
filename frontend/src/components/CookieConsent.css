@@ -1,0 +1,91 @@
+.cookie-consent-modal .modal-content {
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.cookie-consent-modal .modal-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1.5rem 1.5rem 1rem;
+}
+
+.cookie-consent-modal .modal-body {
+  padding: 1.5rem;
+}
+
+.cookie-consent-modal .modal-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.cookie-consent-intro a {
+  color: #0078D7;
+  text-decoration: none;
+}
+
+.cookie-consent-intro a:hover {
+  text-decoration: underline;
+}
+
+.cookie-option {
+  background-color: rgba(240, 245, 250, 0.5);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+}
+
+.cookie-option:hover {
+  background-color: rgba(240, 245, 250, 0.8);
+}
+
+.cookie-option .form-check-input {
+  width: 2.5em;
+  height: 1.5em;
+  margin-right: 10px;
+}
+
+.cookie-option .form-check-input:checked {
+  background-color: #0078D7;
+  border-color: #0078D7;
+}
+
+.cookie-option .form-check-label {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.cookie-option p {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.badge {
+  font-weight: 500;
+  padding: 0.5em 0.8em;
+}
+
+.badge.bg-primary {
+  background-color: #0078D7 !important;
+}
+
+.badge.bg-secondary {
+  background-color: #6c757d !important;
+}
+
+@media (max-width: 576px) {
+  .cookie-consent-modal .modal-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .cookie-consent-modal .modal-footer .d-flex {
+    flex-direction: column;
+    gap: 0.5rem !important;
+  }
+  
+  .cookie-consent-modal .modal-footer button {
+    width: 100%;
+    margin: 0.25rem 0;
+  }
+}
