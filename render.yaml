@@ -1,0 +1,154 @@
+services:
+  # Service PostgreSQL
+  - type: pserv
+    name: billetterie-postgres
+    env: docker
+    plan: free
+    disk:
+      name: postgres-data
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 1
+    envVars:
+      - key: POSTGRES_USER
+        value: postgres
+      - key: POSTGRES_PASSWORD
+        sync: false
+      - key: POSTGRES_DB
+        value: billetterie
+
+  # Service Redis
+  - type: redis
+    name: billetterie-redis
+    ipAllowList: []
+    plan: free
+
+  # Service d'authentification
+  - type: web
+    name: billetterie-auth
+    env: docker
+    dockerfilePath: ./services/auth/Dockerfile
+    dockerContext: ./services/auth
+    plan: free
+    healthCheckPath: /docs
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: pserv
+          name: billetterie-postgres
+          envVarKey: DATABASE_URL
+      - key: SECRET_KEY
+        generateValue: true
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: billetterie-redis
+          envVarKey: REDIS_HOST
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: billetterie-redis
+          envVarKey: REDIS_PORT
+
+  # Service de billetterie
+  - type: web
+    name: billetterie-tickets
+    env: docker
+    dockerfilePath: ./services/tickets/Dockerfile
+    dockerContext: ./services/tickets
+    plan: free
+    healthCheckPath: /docs
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: pserv
+          name: billetterie-postgres
+          envVarKey: DATABASE_URL
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: billetterie-redis
+          envVarKey: REDIS_HOST
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: billetterie-redis
+          envVarKey: REDIS_PORT
+
+  # Service d'administration
+  - type: web
+    name: billetterie-admin
+    env: docker
+    dockerfilePath: ./services/admin/Dockerfile
+    dockerContext: ./services/admin
+    plan: free
+    healthCheckPath: /docs
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: pserv
+          name: billetterie-postgres
+          envVarKey: DATABASE_URL
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: billetterie-redis
+          envVarKey: REDIS_HOST
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: billetterie-redis
+          envVarKey: REDIS_PORT
+
+  # Service de validation
+  - type: web
+    name: billetterie-validation
+    env: docker
+    dockerfilePath: ./services/validation/Dockerfile
+    dockerContext: ./services/validation
+    plan: free
+    healthCheckPath: /docs
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: pserv
+          name: billetterie-postgres
+          envVarKey: DATABASE_URL
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: billetterie-redis
+          envVarKey: REDIS_HOST
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: billetterie-redis
+          envVarKey: REDIS_PORT
+
+  # API Gateway
+  - type: web
+    name: billetterie-api-gateway
+    env: docker
+    dockerfilePath: ./api-gateway/Dockerfile
+    dockerContext: ./api-gateway
+    plan: free
+    healthCheckPath: /api/tickets/offers/
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: /api/$1
+
+  # Frontend
+  - type: web
+    name: billetterie-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: free
+    healthCheckPath: /
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://billetterie-api-gateway.onrender.com
