@@ -65,11 +65,6 @@ def generate_qr_code(ticket_id: int, security_key_1: str, security_key_2: str):
     
     return f"data:image/png;base64,{img_str}"
 
-# Health check pour Railway
-@app.get("/health")
-def health_check():
-    return {"status": "ok", "service": "tickets"}
-
 # Routes
 @app.get("/offers/", response_model=List[schemas.Offer])
 def get_offers(db: Annotated[Session, Depends(get_db)], skip: int = 0, limit: int = 100):

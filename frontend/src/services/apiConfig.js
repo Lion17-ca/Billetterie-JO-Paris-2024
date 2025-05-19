@@ -47,15 +47,11 @@ const createApiInstance = (baseURL) => {
 };
 
 // Déterminer l'hôte actuel (utiliser le hostname actuel au lieu de localhost codé en dur)
-const isRailway = typeof process !== 'undefined' && process.env && process.env.RAILWAY_ENVIRONMENT;
 const currentHost = window.location.hostname;
 
-// Utiliser l'API Gateway comme point d'entrée principal
-// En production sur Railway, utiliser le domaine public sans port
-// En développement, utiliser le port 8080
-const apiGatewayUrl = isRailway 
-  ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN || currentHost}` 
-  : `http://${currentHost}:8080`;
+// Utiliser l'API Gateway comme point d'entrée principal (port 8080)
+// C'est la meilleure pratique pour une architecture microservices
+const apiGatewayUrl = `http://${currentHost}:8080`;
 
 // Création des instances pour chaque service via l'API Gateway
 export const authApi = createApiInstance(`${apiGatewayUrl}/auth`);

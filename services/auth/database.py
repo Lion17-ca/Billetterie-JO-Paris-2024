@@ -10,10 +10,9 @@ load_dotenv()
 # Pour le développement, nous utilisons SQLite
 # En production, nous utilisons PostgreSQL
 
-# Force l'utilisation de PostgreSQL pour Docker ou Railway
-if os.getenv("DOCKER_ENV") == "true" or os.getenv("RAILWAY_ENVIRONMENT") or os.path.exists('/.dockerenv'):
-    # Utiliser l'URL de base de données fournie par Railway si disponible
-    DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@postgres-db:5432/auth_db")
+# Force l'utilisation de PostgreSQL pour Docker
+if os.getenv("DOCKER_ENV") == "true" or os.path.exists('/.dockerenv'):
+    DATABASE_URL = "postgresql://postgres:postgres@postgres-db:5432/auth_db"
 else:
     DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./auth.db")
 

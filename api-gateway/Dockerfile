@@ -1,16 +1,18 @@
-FROM nginx:alpine
+FROM python:3.11-slim
 
-# Copier la configuration nginx
-COPY nginx.conf /etc/nginx/nginx.conf
+WORKDIR /app
 
-# Créer le répertoire SSL
-RUN mkdir -p /etc/nginx/ssl
+# Copier les fichiers de dépendances
+COPY requirements.txt .
 
-# Copier les certificats SSL (ou les générer si nécessaire)
-COPY ssl/ /etc/nginx/ssl/
+# Installer les dépendances
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Exposer les ports HTTP et HTTPS
-EXPOSE 80 443
+# Copier le code source
+COPY . .
+
+# Exposer le port
+EXPOSE 8080
 
 # Commande de démarrage
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
