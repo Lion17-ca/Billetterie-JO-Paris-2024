@@ -9,10 +9,18 @@ const EmployeeDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Vérifier si l'utilisateur est un employé
+    // Vérifier si l'utilisateur est un employé et non un administrateur
     const isEmployee = localStorage.getItem('is_employee') === 'true';
+    const isAdmin = localStorage.getItem('is_admin') === 'true';
     const email = localStorage.getItem('user_email');
     
+    // Si c'est un administrateur, le rediriger vers le tableau de bord admin
+    if (isAdmin) {
+      navigate('/admin-dashboard');
+      return;
+    }
+    
+    // Si ce n'est pas un employé, le rediriger vers l'accueil
     if (!isEmployee) {
       navigate('/');
       return;

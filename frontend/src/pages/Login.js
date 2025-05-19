@@ -164,11 +164,19 @@ const Login = () => {
             // Attendre un court instant pour que les événements soient traités
             setTimeout(() => {
               // Rediriger vers la page appropriée en fonction du statut
-              if (isEmployee) {
-                navigate('/employee-dashboard');
-              } else if (isAdmin) {
+              // Priorité 1: Si l'utilisateur est un administrateur, le rediriger vers le tableau de bord admin
+              if (isAdmin) {
+                console.log('Redirection vers le tableau de bord administrateur');
                 navigate('/admin-dashboard');
-              } else {
+              } 
+              // Priorité 2: Si l'utilisateur est un employé (mais pas un admin), le rediriger vers le tableau de bord employé
+              else if (isEmployee) {
+                console.log('Redirection vers le tableau de bord employé');
+                navigate('/employee-dashboard');
+              } 
+              // Priorité 3: Si l'utilisateur est un utilisateur normal, le rediriger vers la page d'accueil
+              else {
+                console.log('Redirection vers la page d\'accueil');
                 navigate('/');
               }
             }, 100);

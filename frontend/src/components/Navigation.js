@@ -16,13 +16,20 @@ const Navigation = () => {
     
     setIsAuthenticated(!!token);
     
-    if (isEmployee) {
-      setUserRole('employee');
-    } else if (isAdmin) {
+    // Vérifier d'abord si l'utilisateur est un administrateur (priorité 1)
+    if (isAdmin) {
       setUserRole('admin');
-    } else if (token) {
+    } 
+    // Ensuite, vérifier si l'utilisateur est un employé (priorité 2)
+    else if (isEmployee) {
+      setUserRole('employee');
+    } 
+    // Enfin, vérifier si l'utilisateur est connecté mais n'a pas de rôle spécial (priorité 3)
+    else if (token) {
       setUserRole('user');
-    } else {
+    } 
+    // Si aucune des conditions n'est remplie, l'utilisateur n'est pas connecté
+    else {
       setUserRole(null);
     }
   };
