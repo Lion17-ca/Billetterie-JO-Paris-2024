@@ -97,7 +97,7 @@ const OffersList = () => {
             quantity: 85,
             type: "solo",
             event_date: "2025-07-29T15:30:00Z",
-            image: "https://images.unsplash.com/photo-1566577825762-58dd08400a8f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            image: "https://images.unsplash.com/photo-1565992441121-4367c2967103?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
             location: "Grand Palais",
             sport: "escrime",
             popularity: 4.3
@@ -110,7 +110,7 @@ const OffersList = () => {
             quantity: 60,
             type: "solo",
             event_date: "2025-08-01T13:00:00Z",
-            image: "https://images.unsplash.com/photo-1616347646180-4b0048b8ec0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
             location: "Champ-de-Mars Arena",
             sport: "judo",
             popularity: 4.5
@@ -188,7 +188,7 @@ const OffersList = () => {
             quantity: 100,
             type: "familiale",
             event_date: "2025-07-29T11:00:00Z",
-            image: "https://images.unsplash.com/photo-1572132520208-e8d3e5cee318?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            image: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
             location: "Stade Nautique de Vaires-sur-Marne",
             sport: "canoe",
             popularity: 4.3
@@ -253,7 +253,7 @@ const OffersList = () => {
             quantity: 40,
             type: "duo",
             event_date: "2025-08-03T14:00:00Z",
-            image: "https://images.unsplash.com/photo-1622279457486-28f703f58db4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            image: "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
             location: "Roland Garros",
             sport: "tennis",
             popularity: 4.7
@@ -305,7 +305,7 @@ const OffersList = () => {
             quantity: 25,
             type: "familiale",
             event_date: "2025-08-11T20:00:00Z",
-            image: "https://images.unsplash.com/photo-1569517282132-25d22f4573e6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            image: "https://images.unsplash.com/photo-1560089000-7433a4ebbd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
             location: "Stade de France",
             sport: "ceremonie",
             popularity: 5.0

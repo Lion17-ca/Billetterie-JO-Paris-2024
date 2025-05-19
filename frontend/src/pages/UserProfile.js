@@ -15,6 +15,7 @@ const UserProfile = () => {
   const [error, setError] = useState(null);
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [dataFetched, setDataFetched] = useState(false); // Pour éviter les appels API répétés
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -33,16 +34,9 @@ const UserProfile = () => {
       return;
     }
 
-    // Récupérer les informations de l'utilisateur
-    const fetchUserData = async () => {
-      try {
-        // Récupérer l'email de l'utilisateur connecté
-        const userEmail = localStorage.getItem('user_email');
-        
-        if (!userEmail) {
-          throw new Error('Aucune information utilisateur trouvée');
-        }
-        
+    // Ne récupérer les données que si elles n'ont pas encore été chargées
+    if (!dataFetched) {
+      const fetchUserData = async () => {
         try {
           // Appel au service d'authentification pour récupérer les informations utilisateur via l'API Gateway
           const response = await authService.getCurrentUser();
@@ -63,14 +57,18 @@ const UserProfile = () => {
             firstName: formattedUserData.firstName,
             lastName: formattedUserData.lastName
           });
+          
+          // Marquer les données comme chargées pour éviter les appels répétés
+          setDataFetched(true);
+          setLoading(false);
         } catch (apiError) {
           console.error('Erreur API:', apiError);
           
-          // Fallback: utiliser les données du localStorage si l'API échoue
+          // Fallback: utiliser des données par défaut si l'API échoue
           const fallbackUserData = {
-            firstName: userEmail.split('@')[0].split('.')[0],
-            lastName: userEmail.split('@')[0].split('.')[1] || '',
-            email: userEmail,
+            firstName: 'Utilisateur',
+            lastName: '',
+            email: 'Non disponible',
             mfaEnabled: localStorage.getItem('mfa_enabled') === 'true'
           };
           
@@ -80,17 +78,17 @@ const UserProfile = () => {
             firstName: fallbackUserData.firstName,
             lastName: fallbackUserData.lastName
           });
+          
+          // Marquer les données comme chargées pour éviter les appels répétés
+          setDataFetched(true);
+          setLoading(false);
+          setError("Erreur lors du chargement des informations utilisateur. Veuillez réessayer plus tard.");
         }
-        
-        setLoading(false);
-      } catch (err) {
-        setError("Erreur lors du chargement des informations utilisateur. Veuillez réessayer plus tard.");
-        setLoading(false);
-      }
-    };
+      };
 
-    fetchUserData();
-  }, [navigate, formData]);
+      fetchUserData();
+    }
+  }, [navigate, dataFetched, formData]); // Ajouter dataFetched comme dépendance
 
   const handleChange = (e) => {
     const { name, value } = e.target;

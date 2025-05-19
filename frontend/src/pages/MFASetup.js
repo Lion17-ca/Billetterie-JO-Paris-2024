@@ -20,8 +20,14 @@ const MFASetup = () => {
     const fetchMFASetup = async () => {
       try {
         console.log('Début de la configuration MFA');
+        // Essayer d'abord d'utiliser le token principal, puis le token temporaire en fallback
         const email = localStorage.getItem('temp_email');
-        const token = localStorage.getItem('temp_token');
+        let token = localStorage.getItem('token');
+        
+        // Si le token principal n'existe pas, essayer le token temporaire
+        if (!token) {
+          token = localStorage.getItem('temp_token');
+        }
         
         console.log('Email récupéré:', email ? 'Oui' : 'Non');
         console.log('Token récupéré:', token ? 'Oui' : 'Non');
@@ -129,49 +135,55 @@ const MFASetup = () => {
       // Récupérer l'email temporaire
       const email = localStorage.getItem('temp_email');
       
-      if (!email) {
-        throw new Error('Aucune information d\'utilisateur trouvée');
+      // Essayer d'abord d'utiliser le token principal, puis le token temporaire en fallback
+      let token = localStorage.getItem('token');
+      if (!token) {
+        token = localStorage.getItem('temp_token');
       }
       
-      // Récupérer le mot de passe temporaire (dans une implémentation réelle, l'utilisateur devrait le saisir)
-      // Pour la démo, nous utilisons un mot de passe par défaut
-      const password = localStorage.getItem('temp_password') || 'Password123!';
+      if (!email || !token) {
+        throw new Error("Aucune information d'utilisateur trouvée. Veuillez vous inscrire à nouveau.");
+      }
       
-      // Utiliser URLSearchParams au lieu de FormData pour une compatibilité optimale avec FastAPI
-      const loginData = new URLSearchParams();
-      loginData.append('username', email);
-      loginData.append('password', password);
-      
-      console.log('Tentative de connexion MFA avec:', loginData.toString());
-      
-      const response = await authService.login(loginData);
-      
-      if (response.data && response.data.access_token) {
-        // Authentification réussie
-        localStorage.setItem('token', response.data.access_token);
-        localStorage.setItem('is_employee', response.data.is_employee);
-        localStorage.setItem('is_admin', response.data.is_admin);
-        localStorage.setItem('user_email', email);
-        localStorage.setItem('mfa_enabled', 'true');
+      // Simuler la vérification du code MFA
+      // Dans un environnement de production, cela serait vérifié par le serveur
+      if (verificationCode === randomMfaCode) {
+        console.log('Code MFA vérifié avec succès');
         
-        // Supprimer les données temporaires
+        // S'assurer que le token est correctement stocké
+        localStorage.setItem('token', token);
+        
+        // Récupérer les informations d'employé et d'admin, soit des variables temporaires, soit des variables principales
+        const isEmployee = localStorage.getItem('is_employee') || localStorage.getItem('temp_is_employee') || 'false';
+        const isAdmin = localStorage.getItem('is_admin') || localStorage.getItem('temp_is_admin') || 'false';
+        
+        // Stocker les informations d'authentification
+        localStorage.setItem('is_employee', isEmployee);
+        localStorage.setItem('is_admin', isAdmin);
+        
+        // Afficher les informations stockées pour le débogage
+        console.log('Token stocké:', localStorage.getItem('token'));
+        console.log('is_employee stocké:', localStorage.getItem('is_employee'));
+        console.log('is_admin stocké:', localStorage.getItem('is_admin'));
+        
+        // Supprimer les informations temporaires
         localStorage.removeItem('temp_email');
         localStorage.removeItem('temp_password');
+        localStorage.removeItem('temp_token');
+        localStorage.removeItem('temp_is_employee');
+        localStorage.removeItem('temp_is_admin');
         
         setSuccess(true);
         
-        // Déclencher un événement pour informer les autres composants
-        window.dispatchEvent(new Event('authChange'));
-        
         // Rediriger vers la page appropriée en fonction du rôle de l'utilisateur après un court délai
         setTimeout(() => {
-          const isEmployee = localStorage.getItem('is_employee') === 'true';
-          const isAdmin = localStorage.getItem('is_admin') === 'true';
+          const isEmployeeUser = localStorage.getItem('is_employee') === 'true';
+          const isAdminUser = localStorage.getItem('is_admin') === 'true';
           
-          if (isEmployee) {
-            navigate('/employee-dashboard');
-          } else if (isAdmin) {
+          if (isAdminUser) {
             navigate('/admin-dashboard');
+          } else if (isEmployeeUser) {
+            navigate('/employee-dashboard');
           } else {
             navigate('/');
           }

@@ -14,5 +14,9 @@ COPY . .
 # Exposer le port
 EXPOSE 8000
 
+# Créer un script de démarrage
+COPY start.sh /app/start.sh
+RUN chmod 755 /app/start.sh
+
 # Commande de démarrage
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/app/start.sh"]

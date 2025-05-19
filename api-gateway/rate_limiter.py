@@ -73,5 +73,5 @@ class RateLimiter:
         return max(0, self.max_requests - len(self.requests[ip_address]))
 
 # Créer des instances pour différents types de requêtes
-auth_limiter = RateLimiter(max_requests=5, window_size=60)  # 5 requêtes d'authentification par minute
-api_limiter = RateLimiter(max_requests=60, window_size=60)  # 60 requêtes API par minute
+auth_limiter = RateLimiter(max_requests=10, window_size=60)  # 10 requêtes d'authentification par minute
+api_limiter = RateLimiter(max_requests=200, window_size=60)  # 200 requêtes API par minute

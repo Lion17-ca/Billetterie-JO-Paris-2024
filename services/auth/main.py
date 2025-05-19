@@ -129,19 +129,20 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: An
     return user
 
 # Routes
-@app.post("/register", response_model=schemas.User)
+@app.post("/register", response_model=schemas.Token)
 async def register_user(user: schemas.UserCreate, db: Annotated[Session, Depends(get_db)]):
-    """Enregistre un nouvel utilisateur dans le système.
+    """Enregistre un nouvel utilisateur dans le système et génère un token JWT.
     
     Cette route permet de créer un nouveau compte utilisateur. Elle génère automatiquement
     une clé de sécurité pour l'utilisateur et un secret pour l'authentification multi-facteurs.
+    Après l'inscription réussie, un token JWT est généré pour authentifier l'utilisateur.
     
     Args:
         user (schemas.UserCreate): Les données de l'utilisateur à créer.
         db (Session): Session de base de données SQLAlchemy.
         
     Returns:
-        schemas.User: L'utilisateur créé.
+        schemas.Token: Le token JWT et les informations sur les rôles de l'utilisateur.
         
     Raises:
         HTTPException: Si l'email est déjà enregistré.
@@ -156,9 +157,37 @@ async def register_user(user: schemas.UserCreate, db: Annotated[Session, Depends
     # Création du secret pour l'authentification MFA
     mfa_secret = pyotp.random_base32()
     
+    # Hachage du mot de passe
     hashed_password = get_password_hash(user.password)
-    return models.create_user(db=db, user=user, hashed_password=hashed_password, 
+    
+    # Création de l'utilisateur
+    new_user = models.create_user(db=db, user=user, hashed_password=hashed_password, 
                              security_key_1=security_key_1, mfa_secret=mfa_secret)
+    
+    # Génération du token JWT
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={
+            "sub": new_user.email,
+            "is_employee": new_user.is_employee,
+            "is_admin": new_user.is_admin
+        }, 
+        expires_delta=access_token_expires
+    )
+    
+    # Journaliser l'inscription réussie
+    log_security_event(
+        event_type="user_registration",
+        user_email=new_user.email,
+        details=f"Inscription réussie. Roles: admin={new_user.is_admin}, employee={new_user.is_employee}"
+    )
+    
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer",
+        "is_employee": new_user.is_employee,
+        "is_admin": new_user.is_admin
+    }
 
 @app.post("/token", response_model=schemas.Token)
 async def login_for_access_token(request: Request, form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[Session, Depends(get_db)]):

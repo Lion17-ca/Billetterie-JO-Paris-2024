@@ -100,6 +100,11 @@ const Register = () => {
           // Inscription réussie
           setSubmitSuccess(true);
           
+          // Stocker le token JWT et les informations utilisateur
+          localStorage.setItem('token', response.data.access_token);
+          localStorage.setItem('is_employee', response.data.is_employee);
+          localStorage.setItem('is_admin', response.data.is_admin);
+          
           // Stocker temporairement l'email et le mot de passe pour la configuration MFA
           localStorage.setItem('temp_email', formData.email);
           localStorage.setItem('temp_password', formData.password);
