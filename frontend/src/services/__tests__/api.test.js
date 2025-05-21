@@ -1,167 +1,238 @@
-import axios from 'axios';
-import { authService, ticketService, adminService, validationService } from '../api';
+import { login, getOffers, addToCart, getCart, buyTicket } from '../api';
+import apiConfig from '../apiConfig';
 
-// Mock axios
-jest.mock('axios', () => ({
-  create: jest.fn(() => ({
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
-    interceptors: {
-      request: { use: jest.fn() },
-      response: { use: jest.fn() }
-    }
-  }))
-}));
+// Mock de fetch
+global.fetch = jest.fn();
 
-describe('API Services', () => {
-  let mockAxiosInstance;
+// Mock de localStorage
+const localStorageMock = (() => {
+  let store = {};
+  return {
+    getItem: jest.fn(key => store[key] || null),
+    setItem: jest.fn((key, value) => {
+      store[key] = value.toString();
+    }),
+    removeItem: jest.fn(key => {
+      delete store[key];
+    }),
+    clear: jest.fn(() => {
+      store = {};
+    })
+  };
+})();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
+describe('API Service', () => {
   beforeEach(() => {
-    // Réinitialiser les mocks
+    fetch.mockClear();
+    localStorage.clear();
     jest.clearAllMocks();
-    
-    // Configurer le mock d'axios
-    mockAxiosInstance = axios.create();
   });
 
-  describe('authService', () => {
-    test('register appelle authApi.post avec les bons paramètres', () => {
-      const userData = { email: 'test@example.com', password: 'password123' };
-      authService.register(userData);
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/register', userData);
-    });
-
-    test('login appelle authApi.post avec les bons paramètres', () => {
-      const credentials = 'username=test@example.com&password=password123';
-      authService.login(credentials);
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/token', credentials, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
+  describe('login', () => {
+    test('calls correct endpoint with credentials and returns token', async () => {
+      const mockResponse = {
+        access_token: 'fake-token',
+        token_type: 'bearer',
+        is_admin: false,
+        is_employee: false
+      };
+      
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse
       });
+
+      const result = await login('test@example.com', 'password123');
+      
+      // Vérifier que fetch a été appelé avec les bons arguments
+      expect(fetch).toHaveBeenCalledWith(
+        `${apiConfig.baseUrl}/auth/token`,
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Content-Type': 'application/x-www-form-urlencoded'
+          })
+        })
+      );
+      
+      // Vérifier que le token a été stocké dans localStorage
+      expect(localStorage.setItem).toHaveBeenCalledWith('token', 'fake-token');
+      expect(localStorage.setItem).toHaveBeenCalledWith('is_admin', 'false');
+      expect(localStorage.setItem).toHaveBeenCalledWith('is_employee', 'false');
+      
+      // Vérifier que la fonction retourne la réponse attendue
+      expect(result).toEqual(mockResponse);
     });
 
-    test('setupMFA appelle authApi.post avec les bons paramètres', () => {
-      authService.setupMFA();
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/mfa/setup');
-    });
+    test('throws error when credentials are invalid', async () => {
+      fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        json: async () => ({ detail: 'Invalid credentials' })
+      });
 
-    test('verifyMFA appelle authApi.post avec les bons paramètres', () => {
-      const token = '123456';
-      authService.verifyMFA(token);
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/mfa/verify', { token });
-    });
-
-    test('getCurrentUser appelle authApi.get avec les bons paramètres', () => {
-      authService.getCurrentUser();
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/users/me');
-    });
-
-    test('updateProfile appelle authApi.put avec les bons paramètres', () => {
-      const userData = { name: 'Test User', email: 'test@example.com' };
-      authService.updateProfile(userData);
-      expect(mockAxiosInstance.put).toHaveBeenCalledWith('/users/me', userData);
-    });
-
-    test('changePassword appelle authApi.post avec les bons paramètres', () => {
-      const passwordData = { old_password: 'old', new_password: 'new' };
-      authService.changePassword(passwordData);
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/users/me/change-password', passwordData);
-    });
-  });
-
-  describe('ticketService', () => {
-    test('getOffers appelle ticketApi.get avec les bons paramètres', () => {
-      ticketService.getOffers();
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/offers');
-    });
-
-    test('getOffer appelle ticketApi.get avec les bons paramètres', () => {
-      const offerId = '123';
-      ticketService.getOffer(offerId);
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/offers/${offerId}`);
-    });
-
-    test('createTicket appelle ticketApi.post avec les bons paramètres', () => {
-      const ticketData = { offer_id: '123', quantity: 2 };
-      ticketService.createTicket(ticketData);
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/tickets/', ticketData);
-    });
-
-    test('getUserTickets appelle ticketApi.get avec les bons paramètres', () => {
-      const userId = '123';
-      ticketService.getUserTickets(userId);
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/tickets/user/${userId}`);
-    });
-
-    test('getTicket appelle ticketApi.get avec les bons paramètres', () => {
-      const ticketId = '123';
-      ticketService.getTicket(ticketId);
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/tickets/${ticketId}`);
-    });
-
-    test('getTicketQRCode appelle ticketApi.get avec les bons paramètres', () => {
-      const ticketId = '123';
-      ticketService.getTicketQRCode(ticketId);
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/tickets/${ticketId}/qrcode`);
+      await expect(login('test@example.com', 'wrong')).rejects.toThrow('Invalid credentials');
     });
   });
 
-  describe('adminService', () => {
-    test('getOffers appelle adminApi.get avec les bons paramètres', () => {
-      adminService.getOffers();
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/offers/');
+  describe('getOffers', () => {
+    test('retrieves offers list correctly', async () => {
+      const mockOffers = [
+        { id: 1, name: 'Offer 1', price: 100 },
+        { id: 2, name: 'Offer 2', price: 200 }
+      ];
+      
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockOffers
+      });
+
+      const result = await getOffers();
+      
+      // Vérifier que fetch a été appelé avec les bons arguments
+      expect(fetch).toHaveBeenCalledWith(
+        `${apiConfig.baseUrl}/tickets/offers/`,
+        expect.objectContaining({
+          method: 'GET',
+          headers: expect.any(Object)
+        })
+      );
+      
+      // Vérifier que la fonction retourne les offres attendues
+      expect(result).toEqual(mockOffers);
     });
 
-    test('createOffer appelle adminApi.post avec les bons paramètres', () => {
-      const offerData = { name: 'Test Offer', price: 100 };
-      adminService.createOffer(offerData);
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/offers/', offerData);
-    });
+    test('throws error when API request fails', async () => {
+      fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        json: async () => ({ detail: 'Server error' })
+      });
 
-    test('updateOffer appelle adminApi.put avec les bons paramètres', () => {
-      const offerId = '123';
-      const offerData = { name: 'Updated Offer', price: 150 };
-      adminService.updateOffer(offerId, offerData);
-      expect(mockAxiosInstance.put).toHaveBeenCalledWith(`/offers/${offerId}`, offerData);
-    });
-
-    test('deleteOffer appelle adminApi.delete avec les bons paramètres', () => {
-      const offerId = '123';
-      adminService.deleteOffer(offerId);
-      expect(mockAxiosInstance.delete).toHaveBeenCalledWith(`/offers/${offerId}`);
-    });
-
-    test('getSalesSummary appelle adminApi.get avec les bons paramètres', () => {
-      adminService.getSalesSummary();
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/sales/');
-    });
-
-    test('getOfferSales appelle adminApi.get avec les bons paramètres', () => {
-      const offerId = '123';
-      adminService.getOfferSales(offerId);
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/sales/${offerId}`);
+      await expect(getOffers()).rejects.toThrow('Server error');
     });
   });
 
-  describe('validationService', () => {
-    test('validateTicket appelle validationApi.post avec les bons paramètres', () => {
-      const validationData = { ticket_id: '123', employee_id: '456' };
-      validationService.validateTicket(validationData);
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/validate', validationData);
+  describe('addToCart', () => {
+    test('adds offer to cart correctly', async () => {
+      localStorage.setItem('token', 'fake-token');
+      
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true })
+      });
+
+      await addToCart(1);
+      
+      // Vérifier que fetch a été appelé avec les bons arguments
+      expect(fetch).toHaveBeenCalledWith(
+        `${apiConfig.baseUrl}/tickets/cart/add`,
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Authorization': 'Bearer fake-token',
+            'Content-Type': 'application/json'
+          }),
+          body: JSON.stringify({ offer_id: 1 })
+        })
+      );
     });
 
-    test('getValidations appelle validationApi.get avec les bons paramètres', () => {
-      validationService.getValidations();
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('/validations/');
+    test('throws error when not authenticated', async () => {
+      localStorage.removeItem('token');
+      
+      await expect(addToCart(1)).rejects.toThrow('Authentication required');
+    });
+  });
+
+  describe('getCart', () => {
+    test('retrieves cart correctly when authenticated', async () => {
+      localStorage.setItem('token', 'fake-token');
+      
+      const mockCart = {
+        items: [{ id: 1, offer: { name: 'Offer 1', price: 100 }, quantity: 2 }],
+        total: 200
+      };
+      
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockCart
+      });
+
+      const result = await getCart();
+      
+      // Vérifier que fetch a été appelé avec les bons arguments
+      expect(fetch).toHaveBeenCalledWith(
+        `${apiConfig.baseUrl}/tickets/cart/`,
+        expect.objectContaining({
+          method: 'GET',
+          headers: expect.objectContaining({
+            'Authorization': 'Bearer fake-token'
+          })
+        })
+      );
+      
+      // Vérifier que la fonction retourne le panier attendu
+      expect(result).toEqual(mockCart);
     });
 
-    test('getEmployeeValidations appelle validationApi.get avec les bons paramètres', () => {
-      const employeeId = '123';
-      validationService.getEmployeeValidations(employeeId);
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith(`/validations/employee/${employeeId}`);
+    test('throws error when not authenticated', async () => {
+      localStorage.removeItem('token');
+      
+      await expect(getCart()).rejects.toThrow('Authentication required');
+    });
+  });
+
+  describe('buyTicket', () => {
+    test('processes purchase correctly when authenticated', async () => {
+      localStorage.setItem('token', 'fake-token');
+      
+      const mockResponse = {
+        success: true,
+        tickets: [{ id: 1, qr_code: 'data:image/png;base64,abc123' }]
+      };
+      
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse
+      });
+
+      const result = await buyTicket({ payment_method: 'credit_card' });
+      
+      // Vérifier que fetch a été appelé avec les bons arguments
+      expect(fetch).toHaveBeenCalledWith(
+        `${apiConfig.baseUrl}/tickets/purchase`,
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Authorization': 'Bearer fake-token',
+            'Content-Type': 'application/json'
+          }),
+          body: JSON.stringify({ payment_method: 'credit_card' })
+        })
+      );
+      
+      // Vérifier que la fonction retourne la réponse attendue
+      expect(result).toEqual(mockResponse);
+    });
+
+    test('throws error when not authenticated', async () => {
+      localStorage.removeItem('token');
+      
+      await expect(buyTicket({})).rejects.toThrow('Authentication required');
+    });
+
+    test('throws error when payment fails', async () => {
+      localStorage.setItem('token', 'fake-token');
+      
+      fetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: async () => ({ detail: 'Payment failed' })
+      });
+
+      await expect(buyTicket({})).rejects.toThrow('Payment failed');
     });
   });
 });
